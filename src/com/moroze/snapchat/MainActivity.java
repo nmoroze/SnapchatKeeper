@@ -26,23 +26,46 @@ public class MainActivity extends Activity {
 	}
 
 	public void keepSnaps(View v) {
+		//keep track of any errors that may occur
+		boolean error=false;
+		String errorText="";
+		
 		//when button pressed, sends series of shell commands one by one and prints their output to console for debugging
 		//this could probably be done a lot nicer, but it works
 		Shell shell = new Shell();
 		String mkDirCmds[] = {"su","-c","mkdir /sdcard/Kept_Snaps/"}; //makes a directory for the kept Snaps on the root of the internal storage (nothing happens if folder exists)
 		String out = shell.sendShellCommand(mkDirCmds);
 		System.out.println(out);
-		
+
 		String cmds[] = {"su","-c","cp /data/data/com.snapchat.android/cache/received_image_snaps/* /sdcard/Kept_Snaps/"}; //copies files from cached snaps to the new folder
 		out = shell.sendShellCommand(cmds);
 		System.out.println(out);
+		if(!out.isEmpty()) {
+			error=true;
+			errorText=out;
+		}
 		
 		String stripFileCmds[] = {"su","-c","for f in /sdcard/Kept_Snaps/*.nomedia; do mv $f /sdcard/Kept_Snaps/`basename $f .nomedia`; done;"}; //strips files of ".nomedia" extension, leaving plain jpegs
 		out = shell.sendShellCommand(stripFileCmds);
 		System.out.println(out);
+		if(out.equals("\nPermission denied")) {
+			error=true;
+			errorText="root";
+		}
+		else if(!out.isEmpty()) {
+			error=true;
+			errorText=out;
+		}
 		
-		toast("Done!");
-		System.out.println("Success!");
+		if(error&&errorText.equals("root")) {
+			alert("Error!", "You do not have root access to your phone, so this app is incompatible. Please do not give a poor rating, as the description states this app will not work if you don't have root.");
+		}
+		else if(error) {
+			alert("Error!","An error occurred! For help, please email the developer (nzmtechcontact@gmail.com) with the following error message: \n"+errorText);
+		}
+		else {
+			alert("Success!", "Check in /sdcard/Kept_Snaps to view any snaps you have kept!");
+		}		
 	}
 	
 	@Override
@@ -73,10 +96,16 @@ public class MainActivity extends Activity {
 		return true; 		
 	}
 	
-	private void toast(String msg) {
-	    Toast.makeText(this,
-                msg,
-			Toast.LENGTH_LONG).show();
-
+	private void alert(String title, String msg) {
+        new AlertDialog.Builder(this)
+        .setTitle(title)
+        .setMessage(msg)
+        .setPositiveButton("Okay", new DialogInterface.OnClickListener()
+        {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				//nothing to do here
+			}
+		}).show();
 	}
 }
