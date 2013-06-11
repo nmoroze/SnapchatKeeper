@@ -3,5 +3,6 @@
 
     <string name="app_name">Snapchat Keeper</string>
     <string name="action_about">About</string>
+    <string name="action_donate">Donate</string>
 
 </resources>

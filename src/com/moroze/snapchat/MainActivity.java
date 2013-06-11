@@ -1,13 +1,19 @@
 package com.moroze.snapchat;
 
+import java.io.File;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Environment;
+import android.text.Html;
+import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import com.xdatv.xdasdk.Shell;
 
@@ -29,26 +35,28 @@ public class MainActivity extends Activity {
 		//keep track of any errors that may occur
 		boolean error=false;
 		String errorText="";
+		File storageRoot = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+		String storagePath = storageRoot.getAbsolutePath();
+		storagePath+="/Kept_Snaps/";
+		File dirToMake = new File(storagePath);
+		dirToMake.mkdir();
 		
 		//when button pressed, sends series of shell commands one by one and prints their output to console for debugging
 		//this could probably be done a lot nicer, but it works
-		Shell shell = new Shell();
-		String mkDirCmds[] = {"su","-c","mkdir /sdcard/Kept_Snaps/"}; //makes a directory for the kept Snaps on the root of the internal storage (nothing happens if folder exists)
-		String out = shell.sendShellCommand(mkDirCmds);
-		System.out.println(out);
+		Shell shell = new Shell();		
 
-		String cmds[] = {"su","-c","cp /data/data/com.snapchat.android/cache/received_image_snaps/* /sdcard/Kept_Snaps/"}; //copies files from cached snaps to the new folder
-		out = shell.sendShellCommand(cmds);
+		String cmds[] = {"su","-c","cp /data/data/com.snapchat.android/cache/received_image_snaps/* "+storagePath}; //copies files from cached snaps to the new folder
+		String out = shell.sendShellCommand(cmds);
 		System.out.println(out);
 		if(!out.equals("")) {
 			error=true;
 			errorText=out;
 		}
 		
-		String stripFileCmds[] = {"su","-c","for f in /sdcard/Kept_Snaps/*.nomedia; do mv $f /sdcard/Kept_Snaps/`basename $f .nomedia`; done;"}; //strips files of ".nomedia" extension, leaving plain jpegs
+		String stripFileCmds[] = {"su","-c","for f in "+storagePath+"*.nomedia; do mv $f "+storagePath+"`basename $f .nomedia`; done;"}; //strips files of ".nomedia" extension, leaving plain jpegs
 		out = shell.sendShellCommand(stripFileCmds);
 		System.out.println(out);
-		if(out.equals("\nPermission denied")) {
+		if(out.equals("\nPermission denied")||out.equals("CritERROR!!!")) {
 			error=true;
 			errorText="root";
 		}
@@ -64,7 +72,7 @@ public class MainActivity extends Activity {
 			alert("Error!","An error occurred! For help, please email the developer (nzmtechcontact@gmail.com) with the following error message: \n"+errorText);
 		}
 		else {
-			alert("Success!", "Check in /sdcard/Kept_Snaps to view any snaps you have kept!");
+			alert("Success!", "Check in your Pictures/Kept_Snaps/ folder to view any snaps you have kept!");
 		}		
 	}
 	
@@ -80,20 +88,22 @@ public class MainActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 	    //no need to check the item, there's only one (a little improper, but okay)
 		//show about dialog
-        new AlertDialog.Builder(this)
-        .setTitle("About")
-        .setMessage("Snapchat Keeper by Noah Moroze (This app requires root to function)\n\n" +
-        			"This app allows you to permanently keep Snapchat images. To use, simply ensure that snaps have been loaded but not opened (it will say 'press and hold to view' below the snap)." +
-        			"Open this app and press the button. Your unopened snaps will automatically be stored as standard jpeg files under /sdcard/Kept_Snaps.\n" +
-        			"As snaps are expected to be erased, please do not violate someone's privacy and warn them ahead of time if you are storing the image they sent you.")
-        .setPositiveButton("Okay", new DialogInterface.OnClickListener()
-        {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				//nothing to do here
-			}
-		}).show();
-		return true; 		
+	    switch (item.getItemId()) {
+	        case R.id.about:
+	        	 alert("About",
+	     	        	"Snapchat Keeper by Noah Moroze (This app requires root to function)\n\n" +
+	     	        	"This app allows you to permanently keep Snapchat images. To use, simply ensure that snaps have been loaded but not opened (it will say 'press and hold to view' below the snap)." +
+	     	        	"Open this app and press the button. Your unopened snaps will automatically be stored as standard jpeg files in the Kept_Snaps folder under Pictures.\n" +
+	     	        	"As snaps are expected to be erased, please do not violate someone's privacy and warn them ahead of time if you are storing the image they sent you.");		
+	            return true;
+	        case R.id.donate:
+	            linkAlert("Donate",
+	            		Html.fromHtml("Please visit <a href=\"http://goo.gl/IvHcR\">goo.gl/IvHcR</a> if you wish to donate via Paypal to the development of this app. If you don't wish to donate money, a 5-star review on Google Play is highly appreciated. Thanks!"));
+	            return true;
+	        default:
+	            return super.onOptionsItemSelected(item);
+	    }
+
 	}
 	
 	private void alert(String title, String msg) {
@@ -107,5 +117,20 @@ public class MainActivity extends Activity {
 				//nothing to do here
 			}
 		}).show();
+	}
+	private void linkAlert(String title, Spanned msg) {
+		final AlertDialog a = 
+		new AlertDialog.Builder(this)
+        .setTitle(title)
+        .setMessage(msg)
+        .setPositiveButton("Okay", new DialogInterface.OnClickListener()
+        {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				//nothing to do here
+			}
+		}).create();
+		a.show();
+		((TextView) a.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
 	}
 }
