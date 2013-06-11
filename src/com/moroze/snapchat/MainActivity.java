@@ -40,7 +40,7 @@ public class MainActivity extends Activity {
 		String cmds[] = {"su","-c","cp /data/data/com.snapchat.android/cache/received_image_snaps/* /sdcard/Kept_Snaps/"}; //copies files from cached snaps to the new folder
 		out = shell.sendShellCommand(cmds);
 		System.out.println(out);
-		if(!out.isEmpty()) {
+		if(!out.equals("")) {
 			error=true;
 			errorText=out;
 		}
@@ -52,7 +52,7 @@ public class MainActivity extends Activity {
 			error=true;
 			errorText="root";
 		}
-		else if(!out.isEmpty()) {
+		else if(!out.equals("")) {
 			error=true;
 			errorText=out;
 		}
