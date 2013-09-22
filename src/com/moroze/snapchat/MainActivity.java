@@ -69,7 +69,7 @@ public class MainActivity extends Activity {
 			alert("Error!", "You do not have root access to your phone, so this app is incompatible. Please do not give a poor rating, as the description states this app will not work if you don't have root.");
 		}
 		else if(error) {
-			alert("Error!","An error occurred! For help, please email the developer (nzmtechcontact@gmail.com) with the following error message: \n"+errorText);
+			alert("Error!","An error occurred! Unfortunately, your phone may not be compatible with Snapchat Keeper.");
 		}
 		else {
 			alert("Success!", "Check in your Pictures/Kept_Snaps/ folder to view any snaps you have kept!");
@@ -96,10 +96,10 @@ public class MainActivity extends Activity {
 	     	        	"Open this app and press the button. Your unopened snaps will automatically be stored as standard jpeg files in the Kept_Snaps folder under Pictures.\n" +
 	     	        	"As snaps are expected to be erased, please do not violate someone's privacy and warn them ahead of time if you are storing the image they sent you.");		
 	            return true;
-	        case R.id.donate:
-	            linkAlert("Donate",
-	            		Html.fromHtml("Please visit <a href=\"http://goo.gl/IvHcR\">goo.gl/IvHcR</a> if you wish to donate via Paypal to the development of this app. If you don't wish to donate money, a 5-star review on Google Play is highly appreciated. Thanks!"));
-	            return true;
+//	        case R.id.donate:
+//	            linkAlert("Donate",
+//	            		Html.fromHtml("Please visit <a href=\"http://goo.gl/IvHcR\">goo.gl/IvHcR</a> if you wish to donate via Paypal to the development of this app. If you don't wish to donate money, a 5-star review on Google Play is highly appreciated. Thanks!"));
+//	            return true;
 	        default:
 	            return super.onOptionsItemSelected(item);
 	    }
