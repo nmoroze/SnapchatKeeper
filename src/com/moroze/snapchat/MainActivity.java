@@ -19,7 +19,7 @@ import com.xdatv.xdasdk.Shell;
 
 /*
  * Snapchat Keeper by Noah Moroze (https://github.com/nmoroze)
- * Shell class borrowed from Adam Outler (see class for licensing info)
+ * Shell class borrowed from Adam Outler (see Shell.java for licensing info)
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -80,7 +80,7 @@ public class MainActivity extends Activity {
 			alert("Error!", "You do not have root access to your phone, so this app is incompatible. Please do not give a poor rating, as the description states this app will not work if you don't have root.");
 		}
 		else if(error) {
-			alert("Error!","An error occurred! Unfortunately, your phone may not be compatible with Snapchat Keeper.");
+			alert("Error!","An error occurred! Either you don't have any snaps to save or your phone may not be incompatible with Snapchat Keeper.");
 		}
 		else {
 			alert("Success!", "Check in your Pictures/Kept_Snaps/ folder to view any snaps you have kept!");
